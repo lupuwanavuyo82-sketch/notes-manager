@@ -1,4 +1,4 @@
-name: Build and Test with Cache
+name: Build and Test (Robust Cache)
 
 on:
   push:
@@ -11,28 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code
-    - name: Checkout code
+    # Step 1: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Step 2: Set up Node.js (example for Node project)
+    # Step 2: Set up Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'  # built-in Node cache for npm packages
 
-    # Step 3: Cache node_modules
-    - name: Cache node_modules
+    # Step 3: Cache node_modules manually (fallback)
+    - name: Cache node_modules fallback
       uses: actions/cache@v3
       with:
         path: node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.run_number }}
         restore-keys: |
-          ${{ runner.os }}-node-
+          node-modules-${{ runner.os }}-
 
     # Step 4: Install dependencies
     - name: Install dependencies
-      run: npm ci
+      run: |
+        echo "Installing dependencies..."
+        npm ci || { echo "npm ci failed, cleaning node_modules and retrying"; rm -rf node_modules; npm ci; }
 
     # Step 5: Run tests
     - name: Run tests
