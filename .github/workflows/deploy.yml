@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Static Site to GitHub Pages
 
 on:
   push:
@@ -8,21 +8,15 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write  # Allow GitHub Pages to update
+      contents: write  # Required for GitHub Pages
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies and build (if needed)
-        run: |
-          npm install
-          npm run build    # Only if your project has a build step
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public  # Change to your output folder
+          publish_dir: ./  # Deploy all files in repo root
