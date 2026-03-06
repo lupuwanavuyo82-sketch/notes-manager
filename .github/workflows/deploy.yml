@@ -3,35 +3,26 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Deploy when code is pushed to main branch
+      - main  # Deploy when code is pushed to main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Allow GitHub Pages to update
+
     steps:
-      # 1️⃣ Checkout your repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2️⃣ Set up Node.js (optional if you have a build step)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+      - name: Install dependencies and build (if needed)
+        run: |
+          npm install
+          npm run build    # Only if your project has a build step
 
-      # 3️⃣ Install dependencies and build (optional for static sites)
-      - name: Install dependencies
-        run: npm install
-        # Skip this if you have no build step
-
-      - name: Build project
-        run: npm run build
-        # Skip this if you only have raw HTML/CSS/JS
-
-      # 4️⃣ Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v6
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist  # Change to your build output folder
+          publish_dir: ./public  # Change to your output folder
